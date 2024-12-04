@@ -1,14 +1,11 @@
 services:
   php:
     container_name: ${COMPOSE_PROJECT_NAME}_php
-    command: [ "supervisord", "-n" ]
     build:
       context: php
       args:
         PHP_VERSION: ${PHP_VERSION}
         COMPOSER_VERSION: ${COMPOSER_VERSION}
-        XDEBUG_VERSION: ${XDEBUG_VERSION}
-        XDEBUG_MODE: ${XDEBUG_MODE:-debug}
         PHP_MBSTRING_FUNC_OVERLOAD: ${PHP_MBSTRING_FUNC_OVERLOAD}
         USER_ID: ${USER_ID:-1000}
         GROUP: ${GROUP:-www-data}
@@ -18,9 +15,6 @@ services:
       - ./site:/var/www
     ports:
       - "${INTERFACE:-127.0.0.1}:${PHP_FPM_PORT:-9000}:9000"
-    environment:
-      XDEBUG_CONFIG: "discover_client_host=${XDEBUG_DISCOVER_CLIENT_HOST} start_with_request=${XDEBUG_START_WITH_REQUEST} client_host=${XDEBUG_HOST} client_port=${XDEBUG_PORT}"
-      PHP_IDE_CONFIG: "serverName=${SERVER_NAME}"
     networks:
       - app-network
 
