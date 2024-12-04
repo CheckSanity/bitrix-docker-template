@@ -38,6 +38,9 @@ requirements before using it in a production environment.
 docker-compose up -d
 ```
 
+**Note**: Don't forget to update `./site/public/bitrix/.settings.php` with your database credentials from `.env` file.
+On MacOS host is value of the `<COMPOSE_PROJECT_NAME>_database`. e.g `your-site-dev_database`
+
 **Note**: Importing a database from an SQL dump can take some time, depending on the size of the file. Please be patient
 and, if needed, monitor the database container logs for updates or potential issues.
 
