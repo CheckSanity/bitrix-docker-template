@@ -3,7 +3,7 @@
 /.php_sessions
 /.ssh
 /mysqldumps/backup.sql
-/site/public/*
+/site/public
 /site/.ssh
 
 # General

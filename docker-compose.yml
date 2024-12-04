@@ -1,0 +1,69 @@
+services:
+  php:
+    container_name: ${COMPOSE_PROJECT_NAME}_php
+    build:
+      context: php
+      args:
+        PHP_VERSION: ${PHP_VERSION}
+        COMPOSER_VERSION: ${COMPOSER_VERSION}
+        PHP_MBSTRING_FUNC_OVERLOAD: ${PHP_MBSTRING_FUNC_OVERLOAD}
+        USER_ID: ${USER_ID:-1000}
+        GROUP: ${GROUP:-www-data}
+    volumes:
+      - ./.ssh:/var/www/.ssh
+      - ./.php_sessions:/sessions
+      - ./site:/var/www
+    ports:
+      - "${INTERFACE:-127.0.0.1}:${PHP_FPM_PORT:-9000}:9000"
+    networks:
+      - app-network
+
+  nginx:
+    container_name: ${COMPOSE_PROJECT_NAME}_nginx
+    build:
+      context: nginx
+      args:
+        DOMAIN: ${DOMAIN}
+        REGEXP: ${NGINX_ROOT_REGEXP}
+        CONDITION_NUMBER: ${NGINX_ROOT_CONDITION_NUMBER}
+    volumes:
+      - ./site:/var/www
+    ports:
+      - "${INTERFACE:-127.0.0.1}:80:80"
+      - "${INTERFACE:-127.0.0.1}:443:443"
+    networks:
+      - app-network
+
+  database:
+    container_name: ${COMPOSE_PROJECT_NAME}_database
+    image: mysql:8.0.36
+    command: [ "sh", "-c", "chmod 777 /docker-entrypoint-initdb.d/migrate.sh && docker-entrypoint.sh mysqld" ]
+    restart: always
+    ports:
+      - "${INTERFACE:-127.0.0.1}:${DB_PORT:-3306}:3306"
+    networks:
+      - app-network
+    volumes:
+      - ./database:/var/lib/mysql
+      - ./mysqldumps/backup.sql:/docker-entrypoint-initdb.d/backup.sql
+      - ./init/migrate.sh:/docker-entrypoint-initdb.d/migrate.sh
+      - ./site:/var/www
+    environment:
+      MYSQL_ROOT_HOST: "%"
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+
+  adminer:
+    container_name: ${COMPOSE_PROJECT_NAME}_adminer
+    image: adminer
+    restart: always
+    networks:
+      - app-network
+    ports:
+      - '8080:8080'
+
+networks:
+  app-network:
+    driver: bridge
