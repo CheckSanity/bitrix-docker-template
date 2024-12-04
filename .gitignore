@@ -1,0 +1,12 @@
+# Specific
+/database
+/.php_sessions
+/.ssh
+/mysqldumps/backup.sql
+/site/public/*
+/site/.ssh
+
+# General
+.env
+.DS_Store
+.idea
